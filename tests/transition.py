@@ -1,29 +1,27 @@
 import time
-from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
 
-#-------------------------- переход из личного кабинета в конструктор  и на логотип Stellar Burgers --------------------
+from fixtures.driver import driver
 
-def main():
-    driver = webdriver.Chrome()
-    driver.maximize_window()
 
-    driver.get('https://stellarburgers.nomoreparties.site/')
-    current_url = driver.current_url
-    time.sleep(1)
+# -------------------------- переход из личного кабинета в конструктор  и на логотип Stellar Burgers --------------------
 
-    # Переход на кнопку «Личный кабинет»
-    driver.find_element(By.XPATH, "/html/body/div/div/header/nav/a").click()
-    time.sleep(1)
+class TestLogin:
 
-    # Переход из Личного кабинета в логотип
-    driver.find_element(By.XPATH, "/html/body/div/div/header/nav/div").click()
-    time.sleep(1)
+    def test_login_from_account(self, driver):
+        driver.get('https://stellarburgers.nomoreparties.site/')
+        wait = WebDriverWait(driver, 10)  # Явное ожидание до 10 секунд
 
-    # Переход из логотипа в конструктор
-    driver.find_element(By.XPATH, "/html/body/div/div/header/nav/ul/li[1]/a").click()
-    time.sleep(1)
+        # Переход на кнопку «Личный кабинет»
+        cabinet_button = (driver.find_element(By.XPATH,
+                                              "//a[contains(@class, 'AppHeader_header__link__3D_hX') and contains(., 'Личный Кабинет')]"))
+        cabinet_button.click()
 
-    driver.quit()
+        # Переход из Личного кабинета в логотип
+        driver.find_element(By.XPATH, "//*[@class='AppHeader_header__logo__2D0X2']/a").click()
 
-main()
+        # Переход из логотипа в конструктор
+        driver.find_element(By.XPATH, "//*[contains(@class, 'AppHeader_header__link__3D_hX') and contains(@class, 'AppHeader_header__link_active__1IkJo')]").click()
+
+        driver.quit()

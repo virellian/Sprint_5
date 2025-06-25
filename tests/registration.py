@@ -3,66 +3,66 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 import random
 import string
+from fixtures.driver import driver
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+
 
 # ------------------------------------- Регистрация ------------------------------------------------------------
 def text_generator(pswd=False):
     chars = string.ascii_letters + string.digits
     if pswd == True:
         chars += "!@#$%^&*()_+-="
-    password = ''.join(random.choices(chars, k=8))
+    password = ''.join(random.choices(chars, k=5))
     return password
 
 
-def main():
-    driver = webdriver.Chrome()
-    driver.maximize_window()
+class TestLogin:
 
-    driver.get('https://stellarburgers.nomoreparties.site/login')
-    current_url = driver.current_url
-    time.sleep(1)
+    def test_login_from_account(self, driver):
+        driver.get('https://stellarburgers.nomoreparties.site/login')
+        wait = WebDriverWait(driver, 10)  # Явное ожидание до 10 секунд
 
-    # Переход на регистрацию
-    driver.find_element(By.XPATH, "/html/body/div/div/main/div/div/p[1]/a").click()
-    time.sleep(1)
+        # Переход на регистрацию
+        cabinet_button = (driver.find_element(By.XPATH,
+                                              "//a[contains(@class, 'Auth_link__1fOlj') and normalize-space(text())='Зарегистрироваться']"))
+        cabinet_button.click()
 
-    # ---Успешная регистрация---
+        # ---Успешная регистрация---
 
-    # Найди поле "Имя" и заполни его
-    driver.find_element(By.XPATH, "/html/body/div/div/main/div/form/fieldset[1]/div/div/input").send_keys(
-        text_generator(False))
-    # Найди поле "Email" и заполни его
-    driver.find_element(By.XPATH, "/html/body/div/div/main/div/form/fieldset[2]/div/div/input").send_keys(
-        f"{text_generator(False)}yandex.ru")
-    # Найди поле "Пароль" и заполни его (некорректный пароль)
-    driver.find_element(By.XPATH, "/html/body/div/div/main/div/form/fieldset[3]/div/div/input").send_keys(text_generator(True))
+        # Найди поле "Имя" и заполни его
+        email_input = wait.until(
+            EC.presence_of_element_located((By.XPATH,
+                                            "//fieldset[contains(@class, 'Auth_fieldset__1QzWN')]//div[label[normalize-space(text())='Имя']]//input")))
+        email_input.send_keys(text_generator(False))
 
-    # Клик по кнопке Зарегистрироваться
-    driver.find_element(By.XPATH, "/html/body/div/div/main/div/form/button").click()
+        # Ожидаем поле Email и вводим адрес
+        email_input = wait.until(
+            EC.presence_of_element_located((By.XPATH,
+                                            "//fieldset[contains(@class, 'Auth_fieldset__1QzWN')]//div[label[normalize-space(text())='Email']]//input")))
+        email_input.send_keys(f"{text_generator(False)}@yandex.ru")
 
-    time.sleep(1)
+        # Найди поле "Пароль" и заполни его (некорректный пароль)
+        pswd_input = wait.until(
+            EC.presence_of_element_located((By.XPATH,
+                                            "//fieldset[contains(@class, 'Auth_fieldset__1QzWN')]//div[label[normalize-space(text())='Пароль']]//input")))
+        pswd_input.send_keys(text_generator(True))
 
-    # если ошибка "пользователь уже существует"
-    if driver.find_element(By.XPATH, "/html/body/div/div/main/div/p"):
-        # Ищем блок текста "пользователь уже существует" и проверяем его
-        error_element = driver.find_element(By.XPATH, "/html/body/div/div/main/div/p")
-        assert "Такой пользователь уже существует" in error_element.text  # Проверяем текст
+        # Клик по кнопке Зарегистрироваться
+        cabinet_button = (driver.find_element(By.XPATH,
+                                              "//button[contains(@class, 'button_button__33qZ0')]"))
+        cabinet_button.click()
 
-    elif driver.find_element(By.XPATH, "/html/body/div/div/main/div/form/fieldset[3]/div/p"):
-        # Ищем блок текста "Некорректный пароль" и проверяем его
-        error_element = driver.find_element(By.XPATH, "/html/body/div/div/main/div/form/fieldset[3]/div/p")
-        assert "Некорректный пароль" in error_element.text  # Проверяем текст
+        assert driver.find_elements(By.XPATH, "//fieldset[contains(@class, 'Auth_fieldset__1QzWN')]//*[normalize-space(text())='Некорректный пароль']")
 
-    # очистка поля пароля
-    driver.find_element(By.XPATH, "/html/body/div/div/main/div/form/fieldset[3]/div/div/input").clear()
-    # Найди поле "Пароль" и заполни его (корректный пароль)
-    driver.find_element(By.XPATH, "/html/body/div/div/main/div/form/fieldset[3]/div/div/input").send_keys("123456")
+        # очистка поля пароля
+        pswd_input.click()
+        pswd_input.clear()
 
-    # Клик по кнопке Зарегистрироваться
-    driver.find_element(By.XPATH, "/html/body/div/div/main/div/form/button").click()
+        # Найди поле "Пароль" и заполни его (корректный пароль)
+        pswd_input.send_keys("123456")
 
-    time.sleep(2)
+        # Клик по кнопке Зарегистрироваться
+        cabinet_button.click()
 
-    driver.quit()
-
-
-main()
+        driver.quit()

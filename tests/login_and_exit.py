@@ -1,38 +1,45 @@
-import time
-from selenium import webdriver
 from selenium.webdriver.common.by import By
+from fixtures.driver import driver
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
-#------------------------------------- вход через кнопку «Личный кабинет» и выход из аккаунта---------------------------
 
-def main():
-    driver = webdriver.Chrome()
-    driver.maximize_window()
+# ------------------------------------- вход через кнопку «Личный кабинет» и выход из аккаунта---------------------------
 
-    driver.get('https://stellarburgers.nomoreparties.site/')
-    current_url = driver.current_url
-    time.sleep(1)
+# ---------- Класс с тестом ----------
+class TestLogin:
 
-    # Переход на кнопку «Личный кабинет»
-    driver.find_element(By.XPATH, "/html/body/div/div/header/nav/a").click()
-    time.sleep(1)
+    def test_login_from_account(self, driver):
+        driver.get('https://stellarburgers.nomoreparties.site/')
+        wait = WebDriverWait(driver, 10)  # Явное ожидание до 10 секунд
 
-    # Найди поле "Email" и заполни его
-    driver.find_element(By.XPATH, "/html/body/div/div/main/div/form/fieldset[1]/div/div/input").send_keys("valeriakrasavina24241@yandex.ru")
-    # Найди поле "Пароль" и заполни его (корректный пароль)
-    driver.find_element(By.XPATH, "/html/body/div/div/main/div/form/fieldset[2]/div/div/input").send_keys("123456")
+        # Переход на кнопку «Личный кабинет»
+        cabinet_button = (driver.find_element(By.XPATH,
+                                              "//a[contains(@class, 'AppHeader_header__link__3D_hX') and contains(., 'Личный Кабинет')]"))
+        cabinet_button.click()
 
-    #Клик по кнопке Войти
-    driver.find_element(By.XPATH, "/html/body/div/div/main/div/form/button").click()
-    time.sleep(1)
+        # Ожидаем поле Email и вводим адрес
+        email_input = wait.until(
+            EC.presence_of_element_located((By.XPATH, "//input[@name='name']")))
+        email_input.send_keys("valeriakrasavina24241@yandex.ru")
 
-    # Переход на кнопку «Личный кабинет»
-    driver.find_element(By.XPATH, "/html/body/div/div/header/nav/a").click()
-    time.sleep(1)
+        # Ожидаем поле Пароль и вводим пароль
+        password_input = wait.until(
+            EC.presence_of_element_located((By.XPATH, "//input[@name='Пароль']")))
+        password_input.send_keys("123456")
 
-    # Выход из аккаунта
-    driver.find_element(By.XPATH, "/html/body/div/div/main/div/nav/ul/li[3]").click()
-    time.sleep(1)
+        # Ожидаем кнопку "Войти" и кликаем
+        submit_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Войти')]")))
+        submit_button.click()
 
-    driver.quit()
+        # Переход на кнопку «Личный кабинет»
+        cabinet_button = (driver.find_element(By.XPATH,
+                                              "//a[contains(@class, 'AppHeader_header__link__3D_hX') and contains(., 'Личный Кабинет')]"))
+        cabinet_button.click()
 
-main()
+        # Выход из аккаунта
+        exit_butt = wait.until(EC.element_to_be_clickable(
+            (By.XPATH, "//button[contains(@class, 'Account_button__14Yp3') and normalize-space(text())='Выход']")))
+        exit_butt.click()
+
+        driver.quit()

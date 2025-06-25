@@ -1,30 +1,44 @@
+import pytest
 import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from fixtures.driver import driver
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+import time
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from fixtures.driver import driver
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
-#------------------------------------- вход по кнопке «Войти в аккаунт» на главной -------------------------------------
 
-def main():
-    driver = webdriver.Chrome()
-    driver.maximize_window()
+# ------------------------------------- вход по кнопке «Войти в аккаунт» на главной -------------------------------------
 
-    driver.get('https://stellarburgers.nomoreparties.site/')
-    current_url = driver.current_url
-    time.sleep(1)
 
-    # Переход на кнопку "Войти в аккаунт"
-    driver.find_element(By.XPATH, "/html/body/div/div/main/section[2]/div/button").click()
-    time.sleep(1)
+class TestLogin:
+    def test_login_page(self, driver):
+        driver.get('https://stellarburgers.nomoreparties.site/')
+        wait = WebDriverWait(driver, 10)  # Явное ожидание до 10 секунд
 
-    # Найди поле "Email" и заполни его
-    driver.find_element(By.XPATH, "/html/body/div/div/main/div/form/fieldset[1]/div/div/input").send_keys("valeriakrasavina24241@yandex.ru")
-    # Найди поле "Пароль" и заполни его (корректный пароль)
-    driver.find_element(By.XPATH, "/html/body/div/div/main/div/form/fieldset[2]/div/div/input").send_keys("123456")
+        # Переход на кнопку "Войти в аккаунт"
+        driver.find_element(By.XPATH, "//button[text()='Войти в аккаунт']").click()
 
-    #Клик по кнопке Войти
-    driver.find_element(By.XPATH, "/html/body/div/div/main/div/form/button").click()
-    time.sleep(3)
+        # Ожидаем поле Email и вводим адрес
+        email_input = wait.until(
+            EC.presence_of_element_located((By.XPATH, "//input[@name='name']")))
+        email_input.send_keys("valeriakrasavina24241@yandex.ru")
 
-    driver.quit()
+        # Ожидаем поле Пароль и вводим пароль
+        password_input = wait.until(
+            EC.presence_of_element_located((By.XPATH, "//input[@name='Пароль']")))
+        password_input.send_keys("123456")
 
-main()
+        # Ожидаем кнопку "Войти" и кликаем
+        submit_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Войти')]")))
+        submit_button.click()
+
+        # Ожидаем, что пользователь будет перенаправлен на главную (например, появится кнопка "Оформить заказ")
+        wait.until(EC.presence_of_element_located((By.XPATH, "//button[contains(text(), 'Оформить заказ')]")))
+
+        driver.quit()
