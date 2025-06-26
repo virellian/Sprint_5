@@ -1,10 +1,9 @@
 from selenium.webdriver.common.by import By
-from fixtures.driver import driver
+
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 
-# ---------- Класс с тестом ----------
 class TestLogin:
 
     def test_login_from_main_page(self, driver):
@@ -30,5 +29,9 @@ class TestLogin:
         submit_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Войти')]")))
         submit_button.click()
 
-        # Ожидаем, что пользователь будет перенаправлен на главную (например, появится кнопка "Оформить заказ")
-        wait.until(EC.presence_of_element_located((By.XPATH, "//button[contains(text(), 'Оформить заказ')]")))
+        # Локатор кнопки по классу
+        order_button = (By.XPATH,
+                        "//button[contains(@class, 'button_button__33qZ0 button_button_type_primary__1O7Bx button_button_size_large__G21Vg')]")
+        # Находим и проверяем
+        button = WebDriverWait(driver, 10).until(EC.visibility_of_element_located(order_button))
+        assert button.text.strip() == "Оформить заказ", f"Не найдена кнопка 'Оформить заказ'"

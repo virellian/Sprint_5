@@ -1,12 +1,11 @@
 from selenium.webdriver.common.by import By
-from fixtures.driver import driver
+
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 
 # ------------------------------------- вход через кнопку «Личный кабинет» и выход из аккаунта---------------------------
 
-# ---------- Класс с тестом ----------
 class TestLogin:
 
     def test_login_from_account(self, driver):
@@ -42,4 +41,11 @@ class TestLogin:
             (By.XPATH, "//button[contains(@class, 'Account_button__14Yp3') and normalize-space(text())='Выход']")))
         exit_butt.click()
 
-        driver.quit()
+        # Локатор кнопки по классу
+        order_button = (By.XPATH,
+                        "//a[contains(@class, 'Auth_link__1fOlj')]")
+        # Находим и проверяем
+        button = WebDriverWait(driver, 10).until(EC.visibility_of_element_located(order_button))
+        assert button.text.strip() == "Зарегистрироваться", f"Не найдена кнопка 'Зарегистрироваться'"
+
+

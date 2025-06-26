@@ -1,88 +1,67 @@
 import time
-from selenium import webdriver
 from selenium.webdriver.common.by import By
-from fixtures.driver import driver
+
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+
 
 # ---------------------------------------------- раздел «Конструктор»----------------------------------------------------
 
 class TestConstructor:
-    def test_login_from_main_page(self, driver):
+    def test_check_sauce(self, driver):
         driver.get('https://stellarburgers.nomoreparties.site/')
-        wait = WebDriverWait(driver, 10)  # Явное ожидание до 10 секунд
 
-        # Переход на кнопку «конструктор»
-        el_input = wait.until(
-            EC.element_to_be_clickable((By.XPATH, "//a[contains(@class, 'AppHeader_header__link_active')]")))
-        time.sleep(1)
-        el_input.click()
+        # Нажали на раздел "Соусы"
+        WebDriverWait(driver, timeout=10).until(
+            EC.visibility_of_element_located((By.XPATH, "//span[contains(text(), 'Соусы')]"))
+        ).click()
 
-        # «Булки»
-        tab_wrapper = wait.until(EC.element_to_be_clickable((
-            By.XPATH,
-            "//span[contains(@class, 'text_type_main-default') and text()='Булки']/ancestor::div[contains(@style, 'display: flex')]"
-        )))
-        tab_wrapper.click()
+        # Проверяем наличие активного раздела
+        WebDriverWait(driver, timeout=10).until(
+            EC.presence_of_element_located((By.XPATH, "//div[contains(@class, 'tab_tab_type_current')]"))
+        ).is_displayed()
 
-        heading = wait.until(
-            EC.visibility_of_element_located((
-                By.XPATH,
-                "//h2[contains(@class, 'text_type_main-medium') and text()='Булки']"
-            ))
+        # Ищем активную вкладку "Соусы" (по классу и тексту)
+        active_tab = WebDriverWait(driver, timeout=10).until(
+            EC.visibility_of_element_located(
+                (By.XPATH, "//div[contains(@class, 'tab_tab_type_current') and contains(., 'Соусы')]")
+            )
         )
+        assert active_tab.text.strip(), "Ошибка: активная вкладка 'Соусы' не найдена"
 
-        is_visible = driver.execute_script(
-            "const el = arguments[0];"
-            "const rect = el.getBoundingClientRect();"
-            "return (rect.top >= 0 && rect.bottom <= window.innerHeight);",
-            heading
+    def test_check_bread(self, driver):
+        driver.get('https://stellarburgers.nomoreparties.site/')
+
+        # Нажали на раздел "Начинки"
+        WebDriverWait(driver, timeout=10).until(
+            EC.visibility_of_element_located((By.XPATH, "//span[contains(text(), 'Начинки')]"))
+        ).click()
+
+        # Нажали на раздел "Булки"
+        WebDriverWait(driver, timeout=10).until(
+            EC.visibility_of_element_located((By.XPATH, "//span[contains(text(), 'Булки')]"))
+        ).click()
+
+        # Ищем активную вкладку "Булки" (по классу и тексту)
+        active_tab = WebDriverWait(driver, timeout=10).until(
+            EC.visibility_of_element_located(
+                (By.XPATH, "//div[contains(@class, 'tab_tab_type_current') and contains(., 'Булки')]")
+            )
         )
+        assert active_tab.text.strip(), "Ошибка: активная вкладка 'Булки' не найдена"
 
-        assert is_visible, "'Булки' не видны на экране"
+    def test_check_toppings(self, driver):
+        driver.get('https://stellarburgers.nomoreparties.site/')
 
-        # «Соусы»
-        tab_wrapper = wait.until(EC.element_to_be_clickable((
-            By.XPATH,
-            "//span[contains(@class, 'text_type_main-default') and text()='Соусы']/ancestor::div[contains(@style, 'display: flex')]"
-        )))
-        tab_wrapper.click()
+        # Нажали на раздел "Начинки"
+        WebDriverWait(driver, timeout=10).until(
+            EC.visibility_of_element_located((By.XPATH, "//span[contains(text(), 'Начинки')]"))
+        ).click()
 
-        heading = wait.until(
-            EC.visibility_of_element_located((
-                By.XPATH,
-                "//h2[contains(@class, 'text_type_main-medium') and text()='Соусы']"
-            ))
+        # Ищем активную вкладку "Начинки" (по классу и тексту)
+        active_tab = WebDriverWait(driver, timeout=10).until(
+            EC.visibility_of_element_located(
+                (By.XPATH, "//div[contains(@class, 'tab_tab_type_current') and contains(., 'Начинки')]")
+            )
         )
-
-        is_visible = driver.execute_script(
-            "const el = arguments[0];"
-            "const rect = el.getBoundingClientRect();"
-            "return (rect.top >= 0 && rect.bottom <= window.innerHeight);",
-            heading
-        )
-
-        assert is_visible, "'Соусы' не видны на экране"
-
-        # «Начинки»
-        tab_wrapper = wait.until(EC.element_to_be_clickable((
-            By.XPATH,
-            "//span[contains(@class, 'text_type_main-default') and text()='Начинки']/ancestor::div[contains(@style, 'display: flex')]"
-        )))
-        tab_wrapper.click()
-
-        heading = wait.until(
-            EC.visibility_of_element_located((
-                By.XPATH,
-                "//h2[contains(@class, 'text_type_main-medium') and text()='Начинки']"
-            ))
-        )
-
-        is_visible = driver.execute_script(
-            "const el = arguments[0];"
-            "const rect = el.getBoundingClientRect();"
-            "return (rect.top >= 0 && rect.bottom <= window.innerHeight);",
-            heading
-        )
-
-        assert is_visible, "'Начинки' не видны на экране"
+        assert active_tab.text.strip(), "Ошибка: активная вкладка 'Начинки' не найдена"

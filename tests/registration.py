@@ -1,9 +1,7 @@
-import time
-from selenium import webdriver
 from selenium.webdriver.common.by import By
 import random
 import string
-from fixtures.driver import driver
+
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
@@ -15,7 +13,6 @@ def text_generator(pswd=False):
         chars += "!@#$%^&*()_+-="
     password = ''.join(random.choices(chars, k=5))
     return password
-
 
 class TestLogin:
 
@@ -65,4 +62,7 @@ class TestLogin:
         # Клик по кнопке Зарегистрироваться
         cabinet_button.click()
 
-        driver.quit()
+        # Находим и проверяем
+        WebDriverWait(driver, 10).until(EC.url_to_be('https://stellarburgers.nomoreparties.site/login'))
+
+        assert 'https://stellarburgers.nomoreparties.site' in driver.current_url
