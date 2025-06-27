@@ -1,19 +1,11 @@
 from selenium.webdriver.common.by import By
-import random
-import string
+from text_generator import text_generator
 
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 
 # ------------------------------------- Регистрация ------------------------------------------------------------
-def text_generator(pswd=False):
-    chars = string.ascii_letters + string.digits
-    if pswd == True:
-        chars += "!@#$%^&*()_+-="
-    password = ''.join(random.choices(chars, k=5))
-    return password
-
 class TestLogin:
 
     def test_login_from_account(self, driver):
@@ -50,7 +42,8 @@ class TestLogin:
                                               "//button[contains(@class, 'button_button__33qZ0')]"))
         cabinet_button.click()
 
-        assert driver.find_elements(By.XPATH, "//fieldset[contains(@class, 'Auth_fieldset__1QzWN')]//*[normalize-space(text())='Некорректный пароль']")
+        assert driver.find_elements(By.XPATH,
+                                    "//fieldset[contains(@class, 'Auth_fieldset__1QzWN')]//*[normalize-space(text())='Некорректный пароль']")
 
         # очистка поля пароля
         pswd_input.click()
