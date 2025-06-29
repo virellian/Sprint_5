@@ -2,6 +2,8 @@ from selenium.webdriver.common.by import By
 
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from url_config import UrlConfig
+from locators import Locators
 
 
 # ------------------------------------- вход через кнопку «Личный кабинет» и выход из аккаунта---------------------------
@@ -9,43 +11,37 @@ from selenium.webdriver.support.ui import WebDriverWait
 class TestLogin:
 
     def test_login_from_account(self, driver):
-        driver.get('https://stellarburgers.nomoreparties.site/')
+        driver.get(UrlConfig.get_full_url())
         wait = WebDriverWait(driver, 10)  # Явное ожидание до 10 секунд
 
         # Переход на кнопку «Личный кабинет»
-        cabinet_button = (driver.find_element(By.XPATH,
-                                              "//a[contains(@class, 'AppHeader_header__link__3D_hX') and contains(., 'Личный Кабинет')]"))
+        cabinet_button = driver.find_element(*Locators.cabinet_button)
         cabinet_button.click()
 
         # Ожидаем поле Email и вводим адрес
         email_input = wait.until(
-            EC.presence_of_element_located((By.XPATH, "//input[@name='name']")))
+            EC.presence_of_element_located(Locators.email_input))
         email_input.send_keys("valeriakrasavina24241@yandex.ru")
 
         # Ожидаем поле Пароль и вводим пароль
         password_input = wait.until(
-            EC.presence_of_element_located((By.XPATH, "//input[@name='Пароль']")))
+            EC.presence_of_element_located(Locators.password_input))
         password_input.send_keys("123456")
 
         # Ожидаем кнопку "Войти" и кликаем
-        submit_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Войти')]")))
+        submit_button = wait.until(EC.element_to_be_clickable(Locators.submit_button))
         submit_button.click()
 
         # Переход на кнопку «Личный кабинет»
-        cabinet_button = (driver.find_element(By.XPATH,
-                                              "//a[contains(@class, 'AppHeader_header__link__3D_hX') and contains(., 'Личный Кабинет')]"))
+        cabinet_button = driver.find_element(*Locators.cabinet_button)
         cabinet_button.click()
 
         # Выход из аккаунта
-        exit_butt = wait.until(EC.element_to_be_clickable(
-            (By.XPATH, "//button[contains(@class, 'Account_button__14Yp3') and normalize-space(text())='Выход']")))
+        exit_butt = wait.until(EC.element_to_be_clickable(Locators.logout_button))
         exit_butt.click()
 
         # Локатор кнопки по классу
-        order_button = (By.XPATH,
-                        "//a[contains(@class, 'Auth_link__1fOlj')]")
+        order_button = Locators.auth_link
         # Находим и проверяем
         button = WebDriverWait(driver, 10).until(EC.visibility_of_element_located(order_button))
         assert button.text.strip() == "Зарегистрироваться", f"Не найдена кнопка 'Зарегистрироваться'"
-
-
